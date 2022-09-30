@@ -3,13 +3,14 @@ import sys
 
 
 def normalize(p):
+    p = np.round(p, 4)
     for action in range(p.shape[0]):
         for state in range(p.shape[1]):
             if np.sum(p[action, state]) == 0:
                 print('Problem in building the transition matrix : zero-zum row.')
                 sys.exit()
             else:
-                p[action, state] = p[action, state] / np.sum(p[action, state])
+                p[action, state, state] += 1 - np.sum(p[action, state])
     return p
 
 

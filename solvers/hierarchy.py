@@ -1,11 +1,13 @@
 import numpy as np
 import mdptoolbox
+from tqdm import tqdm
 
 from solvers.utils import get_periphery, get_boundary, normalize, find_index, general_to_show
 
 
 class Regions:
     def __init__(self, env, kappa, method='policy_iteration'):
+        print('Initialization...')
         self.P = env.P
         self.R = env.R
         self.S = env.S
@@ -22,11 +24,12 @@ class Regions:
         self.boundaries = [get_boundary(self.P, region) for region in self.regions]
         self.completed_regions = [self.regions[i] + self.peripheries[i] for i in range(self.global_S)]
 
+        print('Solving local processes...')
         self.global_actions = []
         self.local_transitions = []
         self.local_rewards = []
         self.local_policies = []
-        for r1 in range(self.global_S):
+        for r1 in tqdm(range(self.global_S)):
             for r2 in range(self.global_S):
                 self.global_actions.append((r1, r2))
                 p, r = self.build_local_p(r1), self.build_local_r(r1, r2)
@@ -43,6 +46,7 @@ class Regions:
         self.global_P = np.zeros((self.global_A, self.global_S, self.global_S))
         self.global_R = np.zeros((self.global_A, self.global_S, self.global_S))
 
+        print('Solving global processes...')
         self.build_global_mdp()
         self.solve_global_mdp()
 
@@ -84,7 +88,7 @@ class Regions:
                         p[action, ini_state_index, fin_state_index] = self.P[action, ini_state, fin_state]
                     elif ini_state in periph:
                         p[action, ini_state_index, ini_state_index] = 1
-        return p
+        return normalize(p)
 
     def region_transition_possible(self, r1, r2):
         for ini_state in self.regions[r1]:

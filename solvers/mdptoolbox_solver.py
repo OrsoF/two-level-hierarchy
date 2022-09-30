@@ -2,9 +2,11 @@ import mdptoolbox
 import numpy as np
 
 
-def solve(p, r, gamma=0.99, solver='value_iteration', verbose=False):
-    if solver == 'value_iteration':
+def solve(p, r, gamma=0.99, methods='value_iteration', verbose=False):
+    if methods == 'value_iteration':
         vi = mdptoolbox.mdp.ValueIteration(p, r, gamma)
+    else:
+        vi = mdptoolbox.mdp.PolicyIteration(p, r, gamma)
     if verbose:
         vi.setVerbose()
     vi.run()
