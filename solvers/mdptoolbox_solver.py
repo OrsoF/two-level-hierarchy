@@ -32,3 +32,30 @@ def show_policy_matrix(policy):
             mat[i, j] = policy[10 * i + j]
 
     print(mat)
+
+
+def evolve_iteration_solver(p, r, policy, state):
+    action = policy[state]
+    next_state = np.random.choice(a=range(p.shape[1]), p=p[action, state])
+    reward = r[action, state, next_state]
+    return next_state, action, reward
+
+
+def trajectory(p, r, policy, state, size=1000):
+    states, actions, rewards = [state], [], []
+    for i in range(size):
+        state, action, reward = evolve_iteration_solver(p, r, policy, state)
+        states.append(state)
+        rewards.append(reward)
+        actions.append(action)
+    return states, actions, rewards
+
+
+def test_policy(p, r, policy):
+    success = 0
+    success_states = np.zeros((p.shape[1]))
+    for state in range(p.shape[1]):
+        success += int(trajectory(p, r, policy, state)[0][-1] == 2)
+        if int(trajectory(p, r, policy, state)[0][-1] == 2):
+            success_states[state] = 1
+    return success/p.shape[1], success_states.reshape((10, 10))
